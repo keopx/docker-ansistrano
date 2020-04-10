@@ -15,10 +15,13 @@ RUN \
   # Update repositories cache and distribution
   apt-get -qq update && apt-get -qqy upgrade && \
   apt-get -yqq install apt-transport-https lsb-release ca-certificates gnupg2 openssl wget dirmngr software-properties-common && \
+  echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu bionic main" >> /etc/apt/sources.list && \
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367 && \
+  apt-get update && \
+  apt-get install -y ansible openssh-client rsync && \
   rm -rf /var/lib/apt/lists/*
+RUN ansible-galaxy install --force ansistrano.deploy ansistrano.rollback && \
+  echo "[defaults]" >> /etc/ansible/ansible.cfg && \
+  echo "host_key_checking = False" >> /etc/ansible/ansible.cfg
 
-RUN echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu bionic main" >> /etc/apt/sources.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
-RUN apt-get update
-RUN apt-get install -y ansible openssh-client rsync
-RUN ansible-galaxy install --force ansistrano.deploy ansistrano.rollback
+CMD ["bash"]
